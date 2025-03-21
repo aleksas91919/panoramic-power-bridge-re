@@ -31,11 +31,11 @@ def log_data(data, client_addr):
     """Log the received binary data to files"""
     timestamp = int(time.time())
     hex_data = binascii.hexlify(data).decode('utf-8')
-    
+
     # Log binary data
     with open(DATA_LOG, 'ab') as f:
         f.write(data)
-    
+
     # Log hex data with timestamp and source
     with open(HEX_LOG, 'a') as f:
         f.write(f"{timestamp} - {client_addr[0]}:{client_addr[1]} - {hex_data}\n")
@@ -44,20 +44,20 @@ def main():
     # Create server socket
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    
+
     try:
         server.bind((HOST, PORT))
         server.listen(5)
         logging.info(f"Panoramic Power bridge server listening on {HOST}:{PORT}")
-        
+
         # Ensure log files exist
         ensure_dir_exists(DATA_LOG)
         ensure_dir_exists(HEX_LOG)
-        
+
         while True:
             client, addr = server.accept()
             logging.info(f"Connection established from {addr[0]}:{addr[1]}")
-            
+
             try:
                 # Handle this client connection
                 while True:
@@ -65,30 +65,32 @@ def main():
                     if not data:
                         logging.info(f"Connection closed by {addr[0]}:{addr[1]}")
                         break
-                    
+
                     # Log the received data
                     log_data(data, addr)
-                    
+
                     # Display info about the received data
                     hex_data = binascii.hexlify(data).decode('utf-8')
                     logging.info(f"Received {len(data)} bytes from {addr[0]}:{addr[1]}")
                     logging.info(f"First 60 bytes (hex): {hex_data[:120]}...")
-                    
+
                     # Respond with 0x5a (acknowledgment)
-                    client.send(b'\x5a')
-            
+                    response = b'\x5a'
+                    client.send(response)
+                    logging.info(f"Responded with {response.hex()}")
+
             except Exception as e:
                 logging.error(f"Error handling client {addr[0]}:{addr[1]}: {e}")
-            
+
             finally:
                 client.close()
-    
+
     except KeyboardInterrupt:
         logging.info("Server shutting down (Ctrl+C)")
-    
+
     except Exception as e:
         logging.error(f"Server error: {e}")
-    
+
     finally:
         server.close()
         logging.info("Server stopped")
