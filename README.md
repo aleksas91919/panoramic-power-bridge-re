@@ -2,7 +2,7 @@
 
 ## Project Goal
 
-The objective of this project is to intercept and analyze data sent by the Panoramic (Centrica) Power Bridge, which traditionally communicates with a remote cloud server. The goal is to understand its protocol, extract useful data, and explore possible local data collection and processing options.
+The objective of this project is to intercept and analyze data sent by the Centrica Business Solutions PowerRadar® and Panoramic Power cellular bridge hardware, which traditionally communicates with a remote cloud server. The goal is to understand its protocol, extract useful data, and explore possible local data collection and processing options.
 
 ## Current Progress
 
@@ -55,7 +55,7 @@ nc -l 8051 | tee raw_data.bin | hexdump -C
 socat TCP-LISTEN:8051,fork,reuseaddr OPEN:bridge_data.log,creat,append
 ```
 
-#### Python TCP Server (`bridge_server.py`)
+#### Python TCP Server (`bridge_server.py` / `bridge_server_response.py`)
 
 This script sets up a TCP server on port `8051` to capture raw data sent by the bridge. It:
 
@@ -63,6 +63,8 @@ This script sets up a TCP server on port `8051` to capture raw data sent by the 
 - Logs raw binary data and hex-formatted logs with timestamps
 - Provides real-time console output with logging
 - Handles connection errors and reconnections
+
+The `bridge_server_response.py` script adds a response as captured from [Bridge Proxy](#bridge-proxy-bridge_proxypy) ([bridge_proxy.log](#bridge_proxylog))
 
 #### Bridge Proxy (`bridge_proxy.py`)
 
@@ -142,6 +144,33 @@ Captured interactions between the bridge and `col.panpwrws.com`:
 - Identifying message types (sensor data, keep-alives, configuration updates).
 - Investigating why `bridge_data.log` does not convert to PCAP.
 - Exploring how responses from `col.panpwrws.com` influence the bridge's behavior.
+- Setup the sensors over [controlled load](#controlled-power-supply-test)
+
+### Controlled power supply test
+
+This will allow to collect data that can be referenced and would help identify:
+
+- Sensor Data Mapping
+  - Use variable load (e.g., 2A vs 4A) on same sensor
+  - Compare hexdump to find changing byte sequences
+  - Correlate changes to specific data fields
+- Multi-Sensor Scenario
+  - Add sensors with known, controlled current draws
+  - Observe protocol's handling of multiple sensor data streams
+- Identify:
+  - Sensor ID encoding
+  - Data sequence/interleaving
+  - Potential checksums or metadata
+
+Recommended Equipment:
+ - Adjustable DC power supply
+ - Current shunt resistors
+ - Precision current measurement tools
+
+Experimental Protocol:
+ - Log hex data during controlled current changes
+ - Use systematic, documented current step variations
+ - Capture extended communication sequences
 
 ### Bridge Storage Limits (Estimates)
 

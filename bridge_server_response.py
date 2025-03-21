@@ -74,9 +74,10 @@ def main():
                     logging.info(f"Received {len(data)} bytes from {addr[0]}:{addr[1]}")
                     logging.info(f"First 60 bytes (hex): {hex_data[:120]}...")
 
-                    # TODO: Implement proper response once protocol is understood
-                    # For now just send a dummy acknowledgment
-                    # client.send(b'\x00\x00')
+                    # Respond with 0x5a (acknowledgment)
+                    response = b'\x5a'
+                    client.send(response)
+                    logging.info(f"Responded with {response.hex()}")
 
             except Exception as e:
                 logging.error(f"Error handling client {addr[0]}:{addr[1]}: {e}")
