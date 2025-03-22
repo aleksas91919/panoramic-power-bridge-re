@@ -107,6 +107,11 @@ Filters in Wireshark:
 
 ## Technical Findings (Ongoing Investigation)
 
+### 2025-03-22 Micron N25Q256A
+Board component: U45, 8-Lead, VDFPN8 – MLP8 
+Flash Memory BIN dumped.
+Size: 33 554 432 bytes (33,6 MB)
+
 ### Initial Observations from Captured Data
 
 #### `bridge_data_hex.log`
